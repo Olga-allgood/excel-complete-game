@@ -1,0 +1,1261 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 30px;
+  background: #eef7f1;
+  color: #19352a;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.game-header {
+  width: min(1100px, 100%);
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: #16854f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.game-header h1 {
+  margin: 0;
+  color: #173f30;
+  font-size: 38px;
+  line-height: 1.1;
+}
+
+/* =========================================================
+   INVENTORY
+========================================================= */
+
+.formula-inventory {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.formula-inventory > span {
+  margin-right: 4px;
+  color: #60736b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.inventory-item {
+  padding: 7px 11px;
+  border: 1px solid #b7cbc0;
+  border-radius: 8px;
+  background: white;
+  font-family: monospace;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.inventory-item.locked {
+  opacity: 0.4;
+}
+
+.inventory-item.collected {
+  border-color: #31a866;
+  background: #d8f6e4;
+  color: #15683f;
+}
+
+/* =========================================================
+   MISSION
+========================================================= */
+
+.mission-card {
+  width: min(1100px, 100%);
+  margin: 0 auto 12px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 5px 16px rgba(31, 70, 52, 0.07);
+  color: #53665e;
+}
+
+.mission-copy strong {
+  color: #19352a;
+}
+
+.desktop-instruction {
+  white-space: nowrap;
+  color: #61766b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.quest-progress {
+  width: min(1100px, 100%);
+  margin: 0 auto 14px;
+  padding: 9px 12px;
+  border: 1px solid #dce9e1;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.progress-heading {
+  margin-bottom: 7px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #61766b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.progress-heading strong {
+  color: #176a43;
+}
+
+.progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dceae2;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #1b8754;
+  transition: width 0.5s ease;
+}
+
+/* =========================================================
+   GAME VIEWPORT
+========================================================= */
+
+.game-world {
+  position: relative;
+  width: min(1100px, 100%);
+  height: 520px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 4px solid #1a6d46;
+  border-radius: 18px;
+  background: #f9fffb;
+  box-shadow: 0 18px 45px rgba(24, 76, 50, 0.12);
+}
+
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  transition: transform 0.1s linear;
+  background:
+    linear-gradient(rgba(27, 123, 79, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 123, 79, 0.07) 1px, transparent 1px),
+    #f9fffb;
+  background-size: 72px 42px;
+}
+
+/* =========================================================
+   ZONE LABELS
+========================================================= */
+
+.zone-label {
+  position: absolute;
+  top: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #526b60;
+}
+
+.zone-label > span {
+  color: #16854f;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.zone-label strong {
+  color: #19352a;
+  font-size: 15px;
+}
+
+.zone-label small {
+  font-size: 12px;
+}
+
+/* =========================================================
+   WORLD SPREADSHEETS
+========================================================= */
+
+.spreadsheet-background {
+  position: absolute;
+  width: 430px;
+  border: 1px solid #a9b9b0;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 22px rgba(40, 76, 59, 0.08);
+}
+
+.first-sheet {
+  left: 70px;
+  top: 40px;
+}
+
+.score-sheet {
+  left: 980px;
+  top: 50px;
+}
+
+.status-sheet {
+  left: 1640px;
+  top: 42px;
+}
+
+.column-labels {
+  height: 26px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #e2e9e5;
+}
+
+.column-labels span {
+  display: grid;
+  place-items: center;
+  border-right: 1px solid #c6d0ca;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sheet-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+}
+
+.sheet-row:nth-child(2) {
+  font-weight: 700;
+}
+
+.sheet-row span {
+  padding: 8px;
+  border-top: 1px solid #d5ddd8;
+  border-right: 1px solid #d5ddd8;
+  font-size: 12px;
+}
+
+/* =========================================================
+   FORMULA TOKENS
+========================================================= */
+
+.formula-token {
+  position: absolute;
+  bottom: 105px;
+  width: 100px;
+  padding: 9px 8px 8px;
+  transform: translateX(-50%);
+  text-align: center;
+  border: 3px solid #1b8754;
+  border-radius: 13px;
+  background: white;
+  box-shadow: 0 7px 0 #afd8bf;
+  animation: tokenFloat 1.5s ease-in-out infinite;
+}
+
+.formula-token.wide-token {
+  width: 138px;
+}
+
+.formula-token .fx {
+  display: block;
+  margin-bottom: 1px;
+  color: #26935d;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.formula-token strong {
+  display: block;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.formula-token small {
+  display: block;
+  margin-top: 3px;
+  color: #788b82;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+@keyframes tokenFloat {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+
+  50% {
+    transform: translate(-50%, -7px);
+  }
+}
+
+/* =========================================================
+   CHECKPOINT
+========================================================= */
+
+.checkpoint-message {
+  position: absolute;
+  bottom: 105px;
+  padding: 9px 13px;
+  border-radius: 9px;
+  background: #daf5e5;
+  color: #147447;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   REPORT STATION
+========================================================= */
+
+.report-station {
+  position: absolute;
+  bottom: 96px;
+  width: 190px;
+  padding: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 3px solid #1b8754;
+  border-radius: 16px;
+  background: white;
+  color: #176a43;
+  box-shadow: 0 8px 0 #b8dfca;
+  text-align: center;
+}
+
+.report-icon {
+  margin-bottom: 4px;
+  font-size: 29px;
+}
+
+.report-station small {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.report-station strong {
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.report-complete {
+  background: #d8f6e4;
+}
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+.player {
+  position: absolute;
+  width: 52px;
+  height: 76px;
+  z-index: 10;
+  transition: left 0.07s linear;
+}
+
+.player-head {
+  position: relative;
+  width: 35px;
+  height: 31px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 3px solid #19352a;
+  border-radius: 50%;
+  background: #ffd6ae;
+}
+
+.player-hair {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 8px;
+  background: #47362c;
+}
+
+.player-body {
+  width: 46px;
+  height: 34px;
+  margin: -2px auto 0;
+  display: grid;
+  place-items: center;
+  border: 3px solid #19352a;
+  border-radius: 8px;
+  background: #1b8754;
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.player-feet {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.player-feet span {
+  width: 18px;
+  height: 8px;
+  border-radius: 5px;
+  background: #19352a;
+}
+
+/* =========================================================
+   GROUND
+========================================================= */
+
+.ground {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 70px;
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  border-top: 4px solid #1a6d46;
+  background: #d5ece0;
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  border-right: 1px solid #9bc4aa;
+  color: #6a8376;
+  font-weight: 800;
+}
+
+/* =========================================================
+   MOBILE CONTROLS
+========================================================= */
+
+.mobile-controls {
+  display: none;
+  width: min(1100px, 100%);
+  margin: 14px auto 0;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-button {
+  min-width: 76px;
+  min-height: 56px;
+  border: 2px solid #1b8754;
+  border-radius: 12px;
+  background: white;
+  color: #176a43;
+  font-size: 26px;
+  font-weight: 900;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.control-button:active {
+  background: #d8f6e4;
+  transform: translateY(2px);
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 29, 19, 0.7);
+}
+
+.challenge-modal,
+.final-report-modal {
+  width: min(620px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 30px;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.final-report-modal {
+  width: min(820px, 100%);
+}
+
+.challenge-label {
+  margin: 0 0 5px;
+  color: #16854f;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.challenge-modal h2,
+.final-report-modal h2 {
+  margin: 0 0 12px;
+  color: #19352a;
+  font-size: 28px;
+}
+
+.challenge-modal > p:not(.challenge-label),
+.report-intro {
+  color: #53665e;
+  line-height: 1.65;
+}
+
+/* =========================================================
+   CHALLENGE EXCEL VISUAL
+========================================================= */
+
+.challenge-excel {
+  margin: 22px 0 24px;
+  overflow-x: auto;
+}
+
+.challenge-excel-grid {
+  min-width: 260px;
+  display: grid;
+  border: 1px solid #b6c8be;
+  border-bottom: none;
+  background: white;
+}
+
+.excel-corner,
+.excel-column-letter,
+.excel-row-number,
+.excel-header-cell,
+.excel-data-cell {
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 8px 10px;
+  border-right: 1px solid #cbd7d1;
+  border-bottom: 1px solid #cbd7d1;
+}
+
+.excel-corner,
+.excel-column-letter,
+.excel-row-number {
+  background: #e4ebe7;
+  color: #41584d;
+  font-weight: 800;
+}
+
+.excel-column-letter {
+  font-size: 14px;
+}
+
+.excel-row-number {
+  font-size: 12px;
+}
+
+.excel-header-cell {
+  background: #f2f6f4;
+  color: #19352a;
+  font-weight: 800;
+}
+
+.excel-data-cell {
+  color: #253b31;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.excel-highlight-cell {
+  background: #f7fcf9;
+  box-shadow: inset 0 0 0 2px rgba(36, 135, 85, 0.12);
+}
+
+.excel-visual-hint {
+  padding: 9px 12px;
+  border: 1px solid #b6c8be;
+  border-top: none;
+  background: #edf7f1;
+  color: #416151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.excel-range-row {
+  display: contents;
+}
+
+/* =========================================================
+   CHALLENGE ANSWERS
+========================================================= */
+
+.answers {
+  display: grid;
+  gap: 10px;
+}
+
+.answer-button {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 2px solid #d4ded8;
+  border-radius: 10px;
+  background: white;
+  color: #253b31;
+  text-align: left;
+  font-family: monospace;
+  font-size: 15px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.answer-button:hover {
+  border-color: #6eb58d;
+  background: #f4fbf7;
+}
+
+.answer-button.answer-correct {
+  border-color: #31a866;
+  background: #effaf4;
+  color: #176a43;
+  box-shadow: 0 0 0 2px rgba(49, 168, 102, 0.08);
+}
+
+.answer-button.answer-incorrect {
+  border-color: #d9534f;
+  background: #fff4f3;
+  color: #87332f;
+  box-shadow: 0 0 0 2px rgba(217, 83, 79, 0.08);
+}
+
+.answer-button.answer-incorrect:hover {
+  border-color: #c9423e;
+  background: #fff0ee;
+}
+
+/* =========================================================
+   CHALLENGE FEEDBACK
+========================================================= */
+
+.feedback {
+  margin-top: 18px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  line-height: 1.55;
+}
+
+.feedback strong,
+.feedback span {
+  display: block;
+}
+
+.feedback strong {
+  margin-bottom: 4px;
+}
+
+.correct-feedback {
+  border-left: 4px solid #31a866;
+  background: #dcf5e6;
+  color: #176f45;
+}
+
+.challenge-incorrect-feedback {
+  border-left: 4px solid #d9534f;
+  background: #fff0ee;
+  color: #87332f;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.continue-button {
+  margin-top: 18px;
+  min-height: 46px;
+  padding: 11px 17px;
+  border: none;
+  border-radius: 9px;
+  background: #1b8754;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.continue-button:hover {
+  background: #146d43;
+}
+
+/* =========================================================
+   FINAL REPORT TABLE
+========================================================= */
+
+.excel-report {
+  width: 100%;
+  margin: 24px 0;
+  overflow-x: auto;
+  border: 1px solid #abbcb3;
+  background: white;
+}
+
+.excel-column-row,
+.report-row {
+  min-width: 650px;
+  display: grid;
+  grid-template-columns: 42px 1.4fr 1fr 1fr 1fr 1fr;
+}
+
+.excel-column-row {
+  background: #e1e9e4;
+  font-weight: 800;
+  text-align: center;
+}
+
+.excel-column-row span,
+.report-row span {
+  padding: 9px 10px;
+  border-right: 1px solid #cbd6d0;
+  border-bottom: 1px solid #cbd6d0;
+}
+
+.report-header-row {
+  background: #f0f5f2;
+  font-weight: 800;
+}
+
+.row-number {
+  background: #e1e9e4;
+  text-align: center;
+  font-weight: 800;
+}
+
+/* =========================================================
+   REPORT TASKS
+========================================================= */
+
+.report-tasks {
+  display: grid;
+  gap: 14px;
+}
+
+.report-task {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid #d9e4dd;
+  border-radius: 12px;
+  background: #f8fcfa;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.report-task-correct {
+  border-color: #31a866;
+  background: #f1fbf5;
+}
+
+.report-task-incorrect {
+  border-color: #d9534f;
+  background: #fff7f6;
+}
+
+.task-number {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1b8754;
+  color: white;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.task-number-correct {
+  background: #16854f !important;
+}
+
+.task-number-incorrect {
+  background: #c9423e !important;
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.task-title {
+  color: #19352a;
+  font-size: 17px;
+}
+
+.task-content p {
+  margin: 5px 0 10px;
+  color: #667a70;
+  line-height: 1.5;
+}
+
+.task-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.task-status-correct {
+  background: #dff5e8;
+  color: #176a43;
+}
+
+.task-status-incorrect {
+  background: #fde2df;
+  color: #a8332f;
+}
+
+/* =========================================================
+   REPORT SELECTS
+========================================================= */
+
+.task-content select {
+  width: 100%;
+  min-height: 48px;
+  padding: 9px 12px;
+  border: 2px solid #cbd8d1;
+  border-radius: 8px;
+  background: white;
+  color: #253b31;
+  font-family: monospace;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.task-content select:focus {
+  outline: none;
+  border-color: #248755;
+  box-shadow: 0 0 0 3px rgba(36, 135, 85, 0.12);
+}
+
+.task-select-correct {
+  border-color: #31a866 !important;
+  background: #f3fbf6 !important;
+  color: #176a43 !important;
+}
+
+.task-select-incorrect {
+  border-color: #d9534f !important;
+  background: #fffafa !important;
+}
+
+.task-select-incorrect:focus {
+  border-color: #c9423e !important;
+  box-shadow: 0 0 0 3px rgba(201, 66, 62, 0.12) !important;
+}
+
+.task-content select:disabled {
+  opacity: 1;
+  cursor: default;
+  -webkit-text-fill-color: #176a43;
+}
+
+/* =========================================================
+   REPORT FEEDBACK
+========================================================= */
+
+.task-feedback {
+  margin-top: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 9px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.task-feedback strong {
+  font-size: 13px;
+}
+
+.task-feedback-correct {
+  border-left: 4px solid #31a866;
+  background: #e2f6ea;
+  color: #176a43;
+}
+
+.task-feedback-incorrect {
+  border-left: 4px solid #d9534f;
+  background: #fff0ee;
+  color: #87332f;
+}
+
+/* =========================================================
+   ASSESSMENT SUMMARY
+========================================================= */
+
+.assessment-summary,
+.assessment-success {
+  margin-top: 20px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 10px;
+  line-height: 1.55;
+}
+
+.assessment-summary {
+  background: #fff5dc;
+  color: #735617;
+}
+
+.assessment-summary strong {
+  color: #664b10;
+}
+
+.assessment-success {
+  background: #dff5e8;
+  color: #176a43;
+}
+
+.assessment-success strong {
+  color: #125d39;
+}
+
+.report-button {
+  min-width: 160px;
+}
+
+/* =========================================================
+   QUEST COMPLETE
+========================================================= */
+
+.quest-complete-final {
+  width: min(1100px, 100%);
+  margin: 20px auto 0;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 2px solid #31a866;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e9f9ef, #d8f6e4);
+  color: #176a43;
+}
+
+.completion-badge {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #16854f;
+  color: white;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.completion-content {
+  flex: 1;
+}
+
+.completion-content > p {
+  margin: 0 0 3px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.completion-content h2 {
+  margin: 0 0 10px;
+  color: #155b3a;
+}
+
+.completion-formulas {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 9px;
+}
+
+.completion-formulas span {
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: white;
+  font-family: monospace;
+  font-weight: 800;
+}
+
+.completion-message {
+  color: #4e6b5d;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .mobile-controls {
+    display: flex;
+  }
+
+  .desktop-instruction {
+    display: none;
+  }
+
+  .game-world {
+    height: 480px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .app {
+    padding: 18px 10px 24px;
+  }
+
+  .game-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .game-header h1 {
+    font-size: 29px;
+  }
+
+  .formula-inventory {
+    width: 100%;
+  }
+
+  .formula-inventory > span {
+    width: 100%;
+  }
+
+  .inventory-item {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .mission-card {
+    padding: 11px 13px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .quest-progress {
+    padding: 8px 10px;
+  }
+
+  .game-world {
+    height: 420px;
+    border-width: 3px;
+    border-radius: 14px;
+  }
+
+  .control-button {
+    min-width: 74px;
+    min-height: 54px;
+  }
+
+  .challenge-modal,
+  .final-report-modal {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .challenge-modal h2,
+  .final-report-modal h2 {
+    font-size: 24px;
+  }
+
+  .answer-button {
+    min-height: 52px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .continue-button {
+    width: 100%;
+    min-height: 50px;
+  }
+
+  .challenge-excel {
+    width: 100%;
+  }
+
+  .excel-corner,
+  .excel-column-letter,
+  .excel-row-number,
+  .excel-header-cell,
+  .excel-data-cell {
+    min-height: 40px;
+    padding: 7px 8px;
+  }
+
+  .excel-data-cell {
+    font-size: 14px;
+  }
+
+  .excel-visual-hint {
+    font-size: 12px;
+  }
+
+  .report-task {
+    padding: 13px;
+    gap: 10px;
+  }
+
+  .task-number {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .task-heading-row {
+    align-items: flex-start;
+  }
+
+  .task-title {
+    font-size: 15px;
+  }
+
+  .task-status {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .task-content select {
+    min-height: 50px;
+    font-size: 13px;
+  }
+
+  .task-feedback {
+    font-size: 13px;
+  }
+
+  .assessment-summary,
+  .assessment-success {
+    padding: 12px 13px;
+    font-size: 14px;
+  }
+
+  .quest-complete-final {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .completion-badge {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    font-size: 24px;
+  }
+
+  .completion-content h2 {
+    font-size: 21px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION / ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .formula-token {
+    animation: none;
+  }
+
+  .world,
+  .player,
+  .progress-fill {
+    transition: none;
+  }
+}
