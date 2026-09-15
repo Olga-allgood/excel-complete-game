@@ -1259,3 +1259,255 @@ button {
     transition: none;
   }
 }
+/* =========================================================
+   FORMULA INPUT / RETRIEVAL PRACTICE
+========================================================= */
+
+.formula-input-challenge {
+  width: min(720px, calc(100% - 32px));
+  margin: 40px auto;
+  padding: 32px;
+  background: white;
+  border: 2px solid #d7e7df;
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(24, 74, 53, 0.12);
+}
+
+.formula-input-header {
+  margin-bottom: 24px;
+}
+
+.formula-input-level {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #168454;
+}
+
+.formula-input-header h2 {
+  margin: 0;
+  color: #173f31;
+}
+
+.formula-input-scenario {
+  padding: 18px;
+  margin-bottom: 24px;
+  background: #f3faf6;
+  border-left: 4px solid #168454;
+  border-radius: 10px;
+}
+
+.formula-input-scenario strong {
+  color: #173f31;
+}
+
+.formula-input-scenario p {
+  margin: 6px 0 0;
+  line-height: 1.6;
+}
+
+.formula-input-task > p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.formula-input-label {
+  display: block;
+  margin: 22px 0 8px;
+  font-weight: 700;
+  color: #173f31;
+}
+
+.formula-entry {
+  display: flex;
+  align-items: center;
+  border: 2px solid #b8cec3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+}
+
+.formula-entry:focus-within {
+  border-color: #168454;
+}
+
+.formula-fx {
+  padding: 14px 16px;
+  background: #edf7f1;
+  color: #168454;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.formula-entry input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border: none;
+  outline: none;
+  font-family: "Courier New", monospace;
+  font-size: 1rem;
+}
+
+.formula-entry input:disabled {
+  background: #f7faf8;
+  color: #173f31;
+}
+
+.formula-feedback {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.formula-feedback-correct {
+  background: #eaf8ef;
+  border: 1px solid #a8d8b8;
+  color: #17683d;
+}
+
+.formula-feedback-try-again {
+  background: #fff8e7;
+  border: 1px solid #e7d39a;
+  color: #6e5718;
+}
+
+.formula-input-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.formula-hint {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: #f5f7f6;
+  border-radius: 10px;
+  color: #52675d;
+}
+
+/* =========================================================
+   RETRIEVAL PRACTICE — SPREADSHEET
+========================================================= */
+
+.formula-input-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.formula-input-subtitle {
+  margin: 6px 0 0;
+  color: #63786e;
+}
+
+.retrieval-type {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #edf7f1;
+  color: #168454;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.retrieval-sheet-wrapper {
+  margin: 24px 0;
+  overflow-x: auto;
+  border: 1px solid #bfcfc7;
+  border-radius: 10px;
+  background: white;
+}
+
+.retrieval-sheet {
+  display: grid;
+  min-width: 420px;
+}
+
+.retrieval-column {
+  min-width: 0;
+  border-right: 1px solid #cbd8d1;
+}
+
+.retrieval-column:last-child {
+  border-right: none;
+}
+
+.retrieval-column-letter {
+  padding: 8px;
+  text-align: center;
+  font-weight: 800;
+  color: #173f31;
+  background: #e3ebe7;
+  border-bottom: 1px solid #cbd8d1;
+}
+
+.retrieval-column-heading {
+  padding: 10px 12px;
+  min-height: 44px;
+  font-weight: 800;
+  color: #173f31;
+  border-bottom: 1px solid #d6e0db;
+}
+
+.retrieval-cell {
+  position: relative;
+  min-height: 42px;
+  padding: 10px 12px 10px 38px;
+  border-bottom: 1px solid #e0e7e3;
+  color: #243d32;
+}
+
+.retrieval-cell:last-child {
+  border-bottom: none;
+}
+
+.retrieval-row-number {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: #f1f5f3;
+  border-right: 1px solid #d6e0db;
+  font-size: 0.75rem;
+  color: #718178;
+}
+
+.retrieval-prompt {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #243d32;
+}
+
+.formula-scaffold {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px dashed #9bbcaf;
+  border-radius: 10px;
+  background: #f6fbf8;
+}
+
+.formula-scaffold span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #63786e;
+}
+
+.formula-scaffold code {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #168454;
+}

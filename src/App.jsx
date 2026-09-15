@@ -1,79 +1,220 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-import Spreadsheet from "./components/Spreadsheet";
-import FormulaToken from "./components/FormulaToken";
 import ChallengeModal from "./components/ChallengeModal";
-import FinalReportModal from "./components/FinalReportModal";
-import QuestComplete from "./components/QuestComplete";
+import FormulaInputChallenge from "./components/FormulaInputChallenge";
+import FormulaToken from "./components/FormulaToken";
+import ModuleComplete from "./components/ModuleComplete";
+import ModuleMap from "./components/ModuleMap";
+import ModuleProgress from "./components/ModuleProgress";
 
-const WORLD_WIDTH = 2700;
+import {
+  curriculumModules,
+  getModuleById,
+} from "./data/curriculum";
 
-const SUM_X = 520;
-const AVERAGE_X = 1250;
-const IF_X = 1880;
-const REPORT_X = 2380;
+import {
+  foundationRetrievalChallenges,
+} from "./data/retrieval";
 
+const WORLD_START = 300;
+const CHALLENGE_SPACING = 430;
 const CHECKPOINT_DISTANCE = 55;
+const PLAYER_STEP = 18;
 
 function App() {
+  /* =========================================================
+     NAVIGATION
+  ========================================================= */
+
+  const [screen, setScreen] = useState("map");
+  const [activeModuleId, setActiveModuleId] = useState(null);
+
+  /* =========================================================
+     LEVEL 1 — GAME STATE
+  ========================================================= */
+
   const [playerX, setPlayerX] = useState(80);
 
-  const [currentChallenge, setCurrentChallenge] = useState(null);
+  const [currentChallengeId, setCurrentChallengeId] =
+    useState(null);
 
-  const [sumCollected, setSumCollected] = useState(false);
-  const [averageCollected, setAverageCollected] = useState(false);
-  const [ifCollected, setIfCollected] = useState(false);
+  const [completedChallengeIds, setCompletedChallengeIds] =
+    useState([]);
 
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
 
-  const [reportComplete, setReportComplete] = useState(false);
-
   const movementTimer = useRef(null);
 
   /* =========================================================
-     PROGRESS
+     LEVEL 2 — RETRIEVAL PRACTICE
   ========================================================= */
 
-  const collectedCount =
-    Number(sumCollected) +
-    Number(averageCollected) +
-    Number(ifCollected);
+  const [retrievalStarted, setRetrievalStarted] =
+    useState(false);
 
-  const progress = reportComplete
-    ? 100
-    : collectedCount === 3
-      ? 82
-      : collectedCount * 24;
+  const [retrievalIndex, setRetrievalIndex] =
+    useState(0);
+
+  const [retrievalComplete, setRetrievalComplete] =
+    useState(false);
+
+  /* =========================================================
+     ACTIVE MODULE
+  ========================================================= */
+
+  const activeModule = activeModuleId
+    ? getModuleById(activeModuleId)
+    : null;
+
+  const currentChallenge =
+    activeModule?.challenges.find(
+      (challenge) =>
+        challenge.id === currentChallengeId
+    ) ?? null;
+
+  const completedInActiveModule = activeModule
+    ? activeModule.challenges.filter((challenge) =>
+        completedChallengeIds.includes(challenge.id)
+      ).length
+    : 0;
+
+  const activeModuleComplete =
+    Boolean(activeModule) &&
+    completedInActiveModule ===
+      activeModule.challenges.length;
+
+  /* =========================================================
+     RETRIEVAL DATA
+  ========================================================= */
+
+  // Foundations gets Level 2 retrieval practice.
+  // We use the module title because the curriculum module ID
+  // is not "foundations".
+  const hasRetrievalPractice =
+    activeModule?.title === "Formula Foundations";
+
+  const retrievalTotal =
+    hasRetrievalPractice
+      ? foundationRetrievalChallenges.length
+      : 0;
+
+  const currentRetrievalChallenge =
+    hasRetrievalPractice &&
+    retrievalStarted &&
+    !retrievalComplete
+      ? foundationRetrievalChallenges[
+          retrievalIndex
+        ] ?? null
+      : null;
+
+  /* =========================================================
+     GENERATED WORLD
+  ========================================================= */
+
+  const checkpoints = activeModule
+    ? activeModule.challenges.map(
+        (challenge, index) => ({
+          challenge,
+          x:
+            WORLD_START +
+            index * CHALLENGE_SPACING,
+        })
+      )
+    : [];
+
+  const worldWidth = activeModule
+    ? Math.max(
+        1400,
+        WORLD_START +
+          activeModule.challenges.length *
+            CHALLENGE_SPACING +
+          400
+      )
+    : 1400;
+
+  /* =========================================================
+     MODULE SELECTION
+  ========================================================= */
+
+  const selectModule = (moduleId) => {
+    const module = getModuleById(moduleId);
+
+    if (!module) {
+      return;
+    }
+
+    setActiveModuleId(moduleId);
+    setCurrentChallengeId(null);
+    setSelectedAnswer("");
+    setFeedback("");
+
+    setRetrievalStarted(false);
+    setRetrievalIndex(0);
+    setRetrievalComplete(false);
+
+    const firstIncompleteIndex =
+      module.challenges.findIndex(
+        (challenge) =>
+          !completedChallengeIds.includes(
+            challenge.id
+          )
+      );
+
+    if (firstIncompleteIndex > 0) {
+      setPlayerX(
+        WORLD_START +
+          firstIncompleteIndex *
+            CHALLENGE_SPACING -
+          120
+      );
+    } else {
+      setPlayerX(80);
+    }
+
+    setScreen("module");
+  };
 
   /* =========================================================
      MOVEMENT
   ========================================================= */
 
   const moveRight = () => {
-    if (currentChallenge || reportComplete) return;
+    if (
+      currentChallengeId ||
+      activeModuleComplete
+    ) {
+      return;
+    }
 
     setPlayerX((previous) =>
-      Math.min(previous + 18, WORLD_WIDTH - 100)
+      Math.min(
+        previous + PLAYER_STEP,
+        worldWidth - 100
+      )
     );
   };
 
   const moveLeft = () => {
-    if (currentChallenge || reportComplete) return;
+    if (
+      currentChallengeId ||
+      activeModuleComplete
+    ) {
+      return;
+    }
 
     setPlayerX((previous) =>
-      Math.max(previous - 18, 0)
+      Math.max(previous - PLAYER_STEP, 0)
     );
   };
 
-  /* =========================================================
-     HOLD-TO-MOVE
-  ========================================================= */
-
   const stopMoving = () => {
     if (movementTimer.current) {
-      window.clearInterval(movementTimer.current);
+      window.clearInterval(
+        movementTimer.current
+      );
+
       movementTimer.current = null;
     }
   };
@@ -87,13 +228,14 @@ function App() {
       moveRight();
     }
 
-    movementTimer.current = window.setInterval(() => {
-      if (direction === "left") {
-        moveLeft();
-      } else {
-        moveRight();
-      }
-    }, 85);
+    movementTimer.current =
+      window.setInterval(() => {
+        if (direction === "left") {
+          moveLeft();
+        } else {
+          moveRight();
+        }
+      }, 85);
   };
 
   useEffect(() => {
@@ -107,28 +249,58 @@ function App() {
   ========================================================= */
 
   useEffect(() => {
+    if (screen !== "module") {
+      return;
+    }
+
     const handleKeyDown = (event) => {
-      if (currentChallenge || reportComplete) {
+      if (
+        currentChallengeId ||
+        activeModuleComplete
+      ) {
         return;
       }
 
       if (event.key === "ArrowRight") {
         event.preventDefault();
-        moveRight();
+
+        setPlayerX((previous) =>
+          Math.min(
+            previous + PLAYER_STEP,
+            worldWidth - 100
+          )
+        );
       }
 
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        moveLeft();
+
+        setPlayerX((previous) =>
+          Math.max(
+            previous - PLAYER_STEP,
+            0
+          )
+        );
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
     };
-  }, [currentChallenge, reportComplete]);
+  }, [
+    screen,
+    currentChallengeId,
+    activeModuleComplete,
+    worldWidth,
+  ]);
 
   /* =========================================================
      CHECKPOINT ACTIVATION
@@ -136,44 +308,57 @@ function App() {
 
   useEffect(() => {
     if (
-      !sumCollected &&
-      Math.abs(playerX - SUM_X) <= CHECKPOINT_DISTANCE
+      screen !== "module" ||
+      !activeModule ||
+      currentChallengeId ||
+      activeModuleComplete
     ) {
-      openChallenge("sum");
+      return;
+    }
+
+    const nextChallenge =
+      activeModule.challenges.find(
+        (challenge) =>
+          !completedChallengeIds.includes(
+            challenge.id
+          )
+      );
+
+    if (!nextChallenge) {
+      return;
+    }
+
+    const checkpoint = checkpoints.find(
+      ({ challenge }) =>
+        challenge.id === nextChallenge.id
+    );
+
+    if (!checkpoint) {
       return;
     }
 
     if (
-      sumCollected &&
-      !averageCollected &&
-      Math.abs(playerX - AVERAGE_X) <= CHECKPOINT_DISTANCE
+      Math.abs(
+        playerX - checkpoint.x
+      ) <= CHECKPOINT_DISTANCE
     ) {
-      openChallenge("average");
-      return;
-    }
+      stopMoving();
 
-    if (
-      averageCollected &&
-      !ifCollected &&
-      Math.abs(playerX - IF_X) <= CHECKPOINT_DISTANCE
-    ) {
-      openChallenge("if");
-      return;
-    }
+      setSelectedAnswer("");
+      setFeedback("");
 
-    if (
-      ifCollected &&
-      !reportComplete &&
-      Math.abs(playerX - REPORT_X) <= 75
-    ) {
-      openChallenge("report");
+      setCurrentChallengeId(
+        nextChallenge.id
+      );
     }
   }, [
     playerX,
-    sumCollected,
-    averageCollected,
-    ifCollected,
-    reportComplete,
+    screen,
+    activeModule,
+    currentChallengeId,
+    completedChallengeIds,
+    checkpoints,
+    activeModuleComplete,
   ]);
 
   /* =========================================================
@@ -184,213 +369,320 @@ function App() {
     0,
     Math.min(
       playerX - 420,
-      WORLD_WIDTH - 1000
+      worldWidth - 1000
     )
   );
 
   /* =========================================================
-     CHALLENGES
+     LEVEL 1 — ANSWERS
   ========================================================= */
 
-  const openChallenge = (challenge) => {
-    stopMoving();
-
-    setCurrentChallenge(challenge);
-    setSelectedAnswer("");
-    setFeedback("");
-  };
-
-  const getChallengeCorrectAnswer = (challenge) => {
-    if (challenge === "sum") {
-      return "=SUM(B2:B4)";
-    }
-
-    if (challenge === "average") {
-      return "=AVERAGE(B2:B4)";
-    }
-
-    if (challenge === "if") {
-      return '=IF(B2>=C2,"Met","Not Met")';
-    }
-
-    return "";
-  };
-
   const isCurrentChallengeCorrect =
-    selectedAnswer &&
-    selectedAnswer ===
-      getChallengeCorrectAnswer(currentChallenge);
-
-  const handleAnswer = (answer) => {
-    setSelectedAnswer(answer);
-
-    /* SUM */
-
-    if (currentChallenge === "sum") {
-      if (answer === "=SUM(B2:B4)") {
-        setSumCollected(true);
-
-        setFeedback(
-          "Correct! SUM adds the values in B2:B4 to calculate total sales."
-        );
-
-        return;
-      }
-
-      if (answer === "=AVERAGE(B2:B4)") {
-        setFeedback(
-          "AVERAGE would calculate the mean of B2:B4, but this task asks for the total sales. Choose the function that adds all values in the range."
-        );
-
-        return;
-      }
-
-      if (answer === "=COUNT(B2:B4)") {
-        setFeedback(
-          "COUNT would tell you how many numeric cells are in B2:B4. It would not calculate the total sales. Choose the function that adds the values."
-        );
-
-        return;
-      }
-    }
-
-    /* AVERAGE */
-
-    if (currentChallenge === "average") {
-      if (answer === "=AVERAGE(B2:B4)") {
-        setAverageCollected(true);
-
-        setFeedback(
-          "Correct! AVERAGE calculates the mean of the values in B2:B4."
-        );
-
-        return;
-      }
-
-      if (answer === "=SUM(B2:B4)") {
-        setFeedback(
-          "SUM would give you the total of B2:B4. This task asks for the mean score, so choose the function that calculates an average."
-        );
-
-        return;
-      }
-
-      if (answer === "=COUNT(B2:B4)") {
-        setFeedback(
-          "COUNT would tell you how many numeric scores are in B2:B4. It would not calculate their mean. Choose the function that averages those values."
-        );
-
-        return;
-      }
-    }
-
-    /* IF */
-
-    if (currentChallenge === "if") {
-      if (
-        answer ===
-        '=IF(B2>=C2,"Met","Not Met")'
-      ) {
-        setIfCollected(true);
-
-        setFeedback(
-          'Correct! IF compares Sales in B2 with Target in C2. Because the condition checks whether B2 is greater than or equal to C2, the formula returns "Met" when the target is reached.'
-        );
-
-        return;
-      }
-
-      if (
-        answer ===
-        '=IF(B2<C2,"Met","Not Met")'
-      ) {
-        setFeedback(
-          'You chose the correct function and the correct cells, but the comparison is reversed. B2 contains Sales and C2 contains Target. "Met" should be returned when Sales is at least the Target, so the condition needs to check whether B2 is greater than or equal to C2.'
-        );
-
-        return;
-      }
-
-      if (answer === "=SUM(B2:C2)") {
-        setFeedback(
-          'You identified the relevant cells, but SUM adds the values instead of comparing them. Here Excel needs to compare Sales in B2 with Target in C2 and then return "Met" or "Not Met" based on that comparison.'
-        );
-
-        return;
-      }
-    }
-  };
+    Boolean(
+      currentChallenge &&
+        selectedAnswer ===
+          currentChallenge.correctAnswer
+    );
 
   const challengeCompleted =
-    (currentChallenge === "sum" && sumCollected) ||
-    (currentChallenge === "average" && averageCollected) ||
-    (currentChallenge === "if" && ifCollected);
+    Boolean(
+      currentChallenge &&
+        completedChallengeIds.includes(
+          currentChallenge.id
+        )
+    );
 
-  const continueGame = () => {
-    setCurrentChallenge(null);
-    setSelectedAnswer("");
-    setFeedback("");
+  const handleAnswer = (answer) => {
+    if (!currentChallenge) {
+      return;
+    }
 
-    setPlayerX((previous) =>
-      Math.min(
-        previous + 95,
-        WORLD_WIDTH - 100
-      )
+    setSelectedAnswer(answer);
+
+    if (
+      answer ===
+      currentChallenge.correctAnswer
+    ) {
+      setCompletedChallengeIds(
+        (previous) => {
+          if (
+            previous.includes(
+              currentChallenge.id
+            )
+          ) {
+            return previous;
+          }
+
+          return [
+            ...previous,
+            currentChallenge.id,
+          ];
+        }
+      );
+
+      setFeedback(
+        currentChallenge.correctFeedback ||
+          "Correct! You recovered this Excel skill."
+      );
+
+      return;
+    }
+
+    setFeedback(
+      currentChallenge.feedback?.[
+        answer
+      ] ||
+        "Not quite. Review the spreadsheet and think about what the formula needs to accomplish."
     );
   };
 
-  const completeReport = () => {
-    setReportComplete(true);
-    setCurrentChallenge(null);
-    setPlayerX(REPORT_X + 90);
+  /* =========================================================
+     LEVEL 1 — CONTINUE
+  ========================================================= */
+
+  const continueGame = () => {
+    const completedId =
+      currentChallengeId;
+
+    setCurrentChallengeId(null);
+    setSelectedAnswer("");
+    setFeedback("");
+
+    const completedCheckpoint =
+      checkpoints.find(
+        ({ challenge }) =>
+          challenge.id === completedId
+      );
+
+    if (completedCheckpoint) {
+      setPlayerX(
+        Math.min(
+          completedCheckpoint.x + 95,
+          worldWidth - 100
+        )
+      );
+    }
   };
 
   /* =========================================================
-     RENDER
+     LEVEL 2 — RETRIEVAL PRACTICE
+  ========================================================= */
+
+  const startRetrievalPractice = () => {
+    stopMoving();
+
+    setCurrentChallengeId(null);
+    setSelectedAnswer("");
+    setFeedback("");
+
+    setRetrievalIndex(0);
+    setRetrievalComplete(false);
+    setRetrievalStarted(true);
+  };
+
+  const completeRetrievalChallenge = () => {
+    const isLastChallenge =
+      retrievalIndex ===
+      foundationRetrievalChallenges.length -
+        1;
+
+    if (isLastChallenge) {
+      setRetrievalComplete(true);
+      return;
+    }
+
+    setRetrievalIndex(
+      (previous) => previous + 1
+    );
+  };
+
+  /* =========================================================
+     RETURN TO MAP
+  ========================================================= */
+
+  const returnToMap = () => {
+    stopMoving();
+
+    setCurrentChallengeId(null);
+    setSelectedAnswer("");
+    setFeedback("");
+
+    setActiveModuleId(null);
+    setPlayerX(80);
+
+    setRetrievalStarted(false);
+    setRetrievalIndex(0);
+    setRetrievalComplete(false);
+
+    setScreen("map");
+  };
+
+  /* =========================================================
+     REPLAY MODULE
+  ========================================================= */
+
+  const replayModule = () => {
+    if (!activeModule) {
+      return;
+    }
+
+    const challengeIds =
+      activeModule.challenges.map(
+        (challenge) => challenge.id
+      );
+
+    setCompletedChallengeIds(
+      (previous) =>
+        previous.filter(
+          (id) =>
+            !challengeIds.includes(id)
+        )
+    );
+
+    setCurrentChallengeId(null);
+    setSelectedAnswer("");
+    setFeedback("");
+
+    setPlayerX(80);
+
+    setRetrievalStarted(false);
+    setRetrievalIndex(0);
+    setRetrievalComplete(false);
+  };
+
+  /* =========================================================
+     QUEST MAP
+  ========================================================= */
+
+  if (screen === "map") {
+    return (
+      <ModuleMap
+        modules={curriculumModules}
+        completedChallengeIds={
+          completedChallengeIds
+        }
+        onSelectModule={selectModule}
+      />
+    );
+  }
+
+  if (!activeModule) {
+    return (
+      <main className="app">
+        <button
+          type="button"
+          onClick={returnToMap}
+        >
+          Return to Quest Map
+        </button>
+      </main>
+    );
+  }
+
+  /* =========================================================
+     LEVEL 2 — RETRIEVAL PRACTICE SCREEN
+  ========================================================= */
+
+  if (
+    hasRetrievalPractice &&
+    retrievalStarted &&
+    !retrievalComplete &&
+    currentRetrievalChallenge
+  ) {
+    return (
+      <main className="app">
+        <header className="game-header">
+          <div>
+            <p className="eyebrow">
+              Excel Quest
+            </p>
+
+            <h1>{activeModule.title}</h1>
+
+            <p className="module-game-subtitle">
+              Level 2 — Retrieval Practice
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="map-button"
+            onClick={returnToMap}
+          >
+            ← Quest Map
+          </button>
+        </header>
+
+        <section className="mission-card">
+          <div className="mission-copy">
+            <strong>
+              Retrieval Practice:
+            </strong>{" "}
+            Construct formulas without
+            relying on multiple-choice
+            answers.
+          </div>
+
+          <div className="desktop-instruction">
+            {retrievalIndex + 1}/
+            {retrievalTotal}
+          </div>
+        </section>
+
+        <FormulaInputChallenge
+          challenge={
+            currentRetrievalChallenge
+          }
+          onComplete={
+            completeRetrievalChallenge
+          }
+        />
+      </main>
+    );
+  }
+
+  /* =========================================================
+     MODULE WORLD
   ========================================================= */
 
   return (
     <main className="app">
-      {/* HEADER */}
-
       <header className="game-header">
         <div>
           <p className="eyebrow">
             Excel Quest
           </p>
 
-          <h1>
-            Formula Adventure
-          </h1>
+          <h1>{activeModule.title}</h1>
+
+          <p className="module-game-subtitle">
+            {activeModule.subtitle}
+          </p>
         </div>
 
-        <div className="formula-inventory">
-          <span>Recovered:</span>
-
-          <InventoryItem
-            label="SUM()"
-            collected={sumCollected}
-          />
-
-          <InventoryItem
-            label="AVERAGE()"
-            collected={averageCollected}
-          />
-
-          <InventoryItem
-            label="IF()"
-            collected={ifCollected}
-          />
-        </div>
+        <button
+          type="button"
+          className="map-button"
+          onClick={returnToMap}
+        >
+          ← Quest Map
+        </button>
       </header>
 
-      {/* MISSION */}
+      <ModuleProgress
+        module={activeModule}
+        completedChallengeIds={
+          completedChallengeIds
+        }
+      />
 
       <section className="mission-card">
         <div className="mission-copy">
           <strong>Mission:</strong>{" "}
-          Recover the three missing formulas
-          and repair the monthly report.
+          Recover all{" "}
+          {activeModule.challenges.length}{" "}
+          Excel skills to complete this
+          module.
         </div>
 
         <div className="desktop-instruction">
@@ -398,208 +690,150 @@ function App() {
         </div>
       </section>
 
-      {/* PROGRESS */}
-
-      <section
-        className="quest-progress"
-        aria-label="Quest progress"
-      >
-        <div className="progress-heading">
-          <span>
-            Quest Progress
-          </span>
-
-          <strong>
-            {reportComplete
-              ? "Complete"
-              : `${collectedCount}/3 formulas`}
-          </strong>
-        </div>
-
-        <div className="progress-track">
-          <div
-            className="progress-fill"
-            style={{
-              width: `${progress}%`,
-            }}
-          />
-        </div>
-      </section>
-
-      {/* GAME */}
-
       <section className="game-world">
         <div
           className="world"
           style={{
-            width: `${WORLD_WIDTH}px`,
+            width: `${worldWidth}px`,
             transform: `translateX(-${cameraX}px)`,
           }}
         >
-          {/* SUM ZONE */}
+          <div
+            className="quest-start-sign"
+            style={{
+              left: "60px",
+            }}
+          >
+            <small>
+              MODULE {activeModule.number}
+            </small>
 
-          <ZoneLabel
-            x={90}
-            number="01"
-            title="Total Sales"
-            subtitle="The total is missing."
-          />
+            <strong>
+              {activeModule.title}
+            </strong>
 
-          <Spreadsheet
-            className="first-sheet"
-            headers={[
-              "Employee",
-              "Sales",
-              "Target",
-              "Status",
-            ]}
-            values={[
-              "Maya",
-              "5400",
-              "5000",
-              "?",
-            ]}
-          />
+            <span>
+              Move → to begin
+            </span>
+          </div>
 
-          {/* AVERAGE ZONE */}
+          {checkpoints.map(
+            (
+              { challenge, x },
+              index
+            ) => {
+              const completed =
+                completedChallengeIds.includes(
+                  challenge.id
+                );
 
-          <ZoneLabel
-            x={1000}
-            number="02"
-            title="Quiz Scores"
-            subtitle="Find the mean."
-          />
+              const previousChallenges =
+                activeModule.challenges.slice(
+                  0,
+                  index
+                );
 
-          <Spreadsheet
-            className="score-sheet"
-            headers={[
-              "Student",
-              "Score 1",
-              "Score 2",
-              "Score 3",
-            ]}
-            values={[
-              "Maya",
-              "80",
-              "90",
-              "100",
-            ]}
-          />
+              const unlocked =
+                previousChallenges.every(
+                  (
+                    previousChallenge
+                  ) =>
+                    completedChallengeIds.includes(
+                      previousChallenge.id
+                    )
+                );
 
-          {/* IF ZONE */}
+              return (
+                <div key={challenge.id}>
+                  <div
+                    className={`generated-zone ${
+                      completed
+                        ? "generated-zone-complete"
+                        : ""
+                    }`}
+                    style={{
+                      left: `${
+                        x - 105
+                      }px`,
+                    }}
+                  >
+                    <span>
+                      SKILL{" "}
+                      {String(
+                        index + 1
+                      ).padStart(
+                        2,
+                        "0"
+                      )}
+                    </span>
 
-          <ZoneLabel
-            x={1645}
-            number="03"
-            title="Target Status"
-            subtitle="Determine whether the target was met."
-          />
+                    <strong>
+                      {challenge.title}
+                    </strong>
 
-          <Spreadsheet
-            className="status-sheet"
-            headers={[
-              "Employee",
-              "Sales",
-              "Target",
-              "Status",
-            ]}
-            values={[
-              "Maya",
-              "5400",
-              "5000",
-              "?",
-            ]}
-          />
+                    <small>
+                      {
+                        challenge.subtitle
+                      }
+                    </small>
+                  </div>
 
-          {/* TOKENS */}
+                  {completed ? (
+                    <div
+                      className="completed-formula-token"
+                      style={{
+                        left: `${x}px`,
+                      }}
+                    >
+                      <span>✓</span>
 
-          {!sumCollected && (
-            <FormulaToken
-              x={SUM_X}
-              label="SUM()"
-              hint="Reach to unlock"
-            />
+                      <strong>
+                        {
+                          challenge.formula
+                        }
+                      </strong>
+
+                      <small>
+                        Recovered
+                      </small>
+                    </div>
+                  ) : unlocked ? (
+                    <FormulaToken
+                      x={x}
+                      label={
+                        challenge.formula
+                      }
+                      hint="Reach to unlock"
+                      wide={
+                        challenge.formula
+                          .length > 8
+                      }
+                    />
+                  ) : (
+                    <div
+                      className="locked-formula-token"
+                      style={{
+                        left: `${x}px`,
+                      }}
+                    >
+                      <span>🔒</span>
+
+                      <strong>
+                        {
+                          challenge.formula
+                        }
+                      </strong>
+
+                      <small>
+                        Complete previous
+                        skill
+                      </small>
+                    </div>
+                  )}
+                </div>
+              );
+            }
           )}
-
-          {sumCollected &&
-            !averageCollected && (
-              <FormulaToken
-                x={AVERAGE_X}
-                label="AVERAGE()"
-                hint="Reach to unlock"
-                wide
-              />
-            )}
-
-          {averageCollected &&
-            !ifCollected && (
-              <FormulaToken
-                x={IF_X}
-                label="IF()"
-                hint="Reach to unlock"
-              />
-            )}
-
-          {/* CHECKPOINTS */}
-
-          {sumCollected &&
-            !averageCollected && (
-              <Checkpoint
-                x={650}
-                text="✓ SUM recovered"
-              />
-            )}
-
-          {averageCollected &&
-            !ifCollected && (
-              <Checkpoint
-                x={1380}
-                text="✓ AVERAGE recovered"
-              />
-            )}
-
-          {ifCollected &&
-            !reportComplete && (
-              <Checkpoint
-                x={2010}
-                text="✓ IF recovered — reach the report!"
-              />
-            )}
-
-          {/* REPORT */}
-
-          {ifCollected && (
-            <div
-              className={`report-station ${
-                reportComplete
-                  ? "report-complete"
-                  : ""
-              }`}
-              style={{
-                left: `${REPORT_X}px`,
-              }}
-            >
-              <span className="report-icon">
-                {reportComplete
-                  ? "✓"
-                  : "📊"}
-              </span>
-
-              <small>
-                {reportComplete
-                  ? "QUEST COMPLETE"
-                  : "FINAL CHALLENGE"}
-              </small>
-
-              <strong>
-                {reportComplete
-                  ? "REPORT RESTORED"
-                  : "FINISH REPORT"}
-              </strong>
-            </div>
-          )}
-
-          {/* PLAYER */}
 
           <div
             className="player"
@@ -623,18 +857,21 @@ function App() {
             </div>
           </div>
 
-          {/* GROUND */}
-
           <div className="ground">
             {Array.from(
-              { length: 28 },
+              {
+                length: Math.ceil(
+                  worldWidth / 95
+                ),
+              },
               (_, index) => (
                 <div
                   className="cell"
                   key={index}
                 >
                   {String.fromCharCode(
-                    65 + (index % 26)
+                    65 +
+                      (index % 26)
                   )}
                 </div>
               )
@@ -643,9 +880,7 @@ function App() {
         </div>
       </section>
 
-      {/* MOBILE CONTROLS */}
-
-      {!reportComplete && (
+      {!activeModuleComplete && (
         <section className="mobile-controls">
           <button
             type="button"
@@ -654,8 +889,12 @@ function App() {
               startMoving("left")
             }
             onPointerUp={stopMoving}
-            onPointerCancel={stopMoving}
-            onPointerLeave={stopMoving}
+            onPointerCancel={
+              stopMoving
+            }
+            onPointerLeave={
+              stopMoving
+            }
             aria-label="Move left"
           >
             ←
@@ -668,8 +907,12 @@ function App() {
               startMoving("right")
             }
             onPointerUp={stopMoving}
-            onPointerCancel={stopMoving}
-            onPointerLeave={stopMoving}
+            onPointerCancel={
+              stopMoving
+            }
+            onPointerLeave={
+              stopMoving
+            }
             aria-label="Move right"
           >
             →
@@ -677,103 +920,79 @@ function App() {
         </section>
       )}
 
-      {/* FORMULA CHALLENGE */}
-
-      {currentChallenge &&
-        currentChallenge !== "report" && (
-          <ChallengeModal
-            challenge={currentChallenge}
-            selectedAnswer={selectedAnswer}
-            feedback={feedback}
-            completed={challengeCompleted}
-            isCorrect={Boolean(
-              isCurrentChallengeCorrect
-            )}
-            onAnswer={handleAnswer}
-            onContinue={continueGame}
-          />
-        )}
-
-      {/* FINAL REPORT */}
-
-      {currentChallenge === "report" && (
-        <FinalReportModal
-          onComplete={completeReport}
+      {currentChallenge && (
+        <ChallengeModal
+          challenge={{
+            ...currentChallenge,
+            moduleTitle:
+              activeModule.title,
+          }}
+          selectedAnswer={
+            selectedAnswer
+          }
+          feedback={feedback}
+          completed={
+            challengeCompleted
+          }
+          isCorrect={
+            isCurrentChallengeCorrect
+          }
+          onAnswer={handleAnswer}
+          onContinue={continueGame}
         />
       )}
 
-      {/* COMPLETE */}
+      {/* =====================================================
+          FOUNDATIONS — LEVEL 2 UNLOCK
+      ===================================================== */}
 
-      {reportComplete && (
-        <QuestComplete />
-      )}
+      {activeModuleComplete &&
+        !currentChallenge &&
+        hasRetrievalPractice &&
+        !retrievalStarted && (
+          <div className="level-two-unlock">
+            <p className="eyebrow">
+              LEVEL 1 COMPLETE
+            </p>
+
+            <h2>
+              Retrieval Practice Unlocked
+            </h2>
+
+            <p>
+              You recovered the Formula
+              Foundations skills. Now
+              construct formulas without
+              multiple-choice support.
+            </p>
+
+            <button
+              type="button"
+              className="continue-button"
+              onClick={
+                startRetrievalPractice
+              }
+            >
+              Start Level 2 →
+            </button>
+          </div>
+        )}
+
+      {/* =====================================================
+          MODULE COMPLETE
+      ===================================================== */}
+
+      {activeModuleComplete &&
+        !currentChallenge &&
+        (!hasRetrievalPractice ||
+          retrievalComplete) && (
+          <ModuleComplete
+            module={activeModule}
+            onContinue={returnToMap}
+            onReplay={replayModule}
+          />
+        )}
     </main>
-  );
-}
-
-/* =========================================================
-   SMALL WORLD-ONLY COMPONENTS
-========================================================= */
-
-function ZoneLabel({
-  x,
-  number,
-  title,
-  subtitle,
-}) {
-  return (
-    <div
-      className="zone-label"
-      style={{
-        left: `${x}px`,
-      }}
-    >
-      <span>
-        Zone {number}
-      </span>
-
-      <strong>
-        {title}
-      </strong>
-
-      <small>
-        {subtitle}
-      </small>
-    </div>
-  );
-}
-
-function InventoryItem({
-  label,
-  collected,
-}) {
-  return (
-    <div
-      className={`inventory-item ${
-        collected
-          ? "collected"
-          : "locked"
-      }`}
-    >
-      {collected && "✓ "}
-      {label}
-    </div>
-  );
-}
-
-function Checkpoint({
-  x,
-  text,
-}) {
-  return (
-    <div
-      className="checkpoint-message"
-      style={{
-        left: `${x}px`,
-      }}
-    >
-      {text}
-    </div>
   );
 }
 
