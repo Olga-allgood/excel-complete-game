@@ -40,19 +40,26 @@ function ExcelComparisonVisual({
           2
         </div>
 
-        {columns.map((column) => (
-          <div
-            key={`${column.letter}-${column.row}`}
-            className="excel-data-cell excel-highlight-cell"
-          >
-            {column.value}
-          </div>
-        ))}
+        {columns.map((column) => {
+          const firstCell =
+            column.cells?.[0];
+
+          return (
+            <div
+              key={`${column.letter}-2`}
+              className="excel-data-cell excel-highlight-cell"
+            >
+              {firstCell?.value ?? ""}
+            </div>
+          );
+        })}
       </div>
 
-      <div className="excel-visual-hint">
-        {footer}
-      </div>
+      {footer && (
+        <div className="excel-visual-hint">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }
@@ -66,120 +73,34 @@ function ChallengeModal({
   onAnswer,
   onContinue,
 }) {
-  const challengeData = {
-    sum: {
-      title: "Recover SUM()",
+  if (!challenge) {
+    return null;
+  }
 
-      prompt:
-        "The monthly report needs the total sales from B2 through B4. Which formula should you use?",
+  const {
+    title,
+    formula,
+    prompt,
+    columns = [],
+    visualHint,
+    answers = [],
+    moduleTitle,
+  } = challenge;
 
-      visual: (
-        <ExcelRangeVisual
-          columns={[
-            {
-              letter: "B",
-              heading: "Sales",
-              cells: [
-                {
-                  row: "2",
-                  value: "5400",
-                },
-                {
-                  row: "3",
-                  value: "4200",
-                },
-                {
-                  row: "4",
-                  value: "6100",
-                },
-              ],
-            },
-          ]}
-          footer="Add the values in B2:B4."
-        />
-      ),
-
-      answers: [
-        "=SUM(B2:B4)",
-        "=AVERAGE(B2:B4)",
-        "=COUNT(B2:B4)",
-      ],
-    },
-
-    average: {
-      title: "Recover AVERAGE()",
-
-      prompt:
-        "The report needs the mean quiz score from B2 through B4. Which formula should you use?",
-
-      visual: (
-        <ExcelRangeVisual
-          columns={[
-            {
-              letter: "B",
-              heading: "Quiz Score",
-              cells: [
-                {
-                  row: "2",
-                  value: "80",
-                },
-                {
-                  row: "3",
-                  value: "90",
-                },
-                {
-                  row: "4",
-                  value: "100",
-                },
-              ],
-            },
-          ]}
-          footer="Calculate the mean of B2:B4."
-        />
-      ),
-
-      answers: [
-        "=SUM(B2:B4)",
-        "=AVERAGE(B2:B4)",
-        "=COUNT(B2:B4)",
-      ],
-    },
-
-    if: {
-      title: "Recover IF()",
-
-      prompt:
-        'Maya should receive "Met" when Sales is at least the Target and "Not Met" otherwise. Which formula should you use?',
-
-      visual: (
-        <ExcelComparisonVisual
-          columns={[
-            {
-              letter: "B",
-              heading: "Sales",
-              row: "2",
-              value: "5400",
-            },
-            {
-              letter: "C",
-              heading: "Target",
-              row: "2",
-              value: "5000",
-            },
-          ]}
-          footer="Compare Sales (B2) with Target (C2)."
-        />
-      ),
-
-      answers: [
-        '=IF(B2>=C2,"Met","Not Met")',
-        '=IF(B2<C2,"Met","Not Met")',
-        "=SUM(B2:C2)",
-      ],
-    },
-  };
-
-  const data = challengeData[challenge];
+  /*
+   * Use the comparison layout when the challenge
+   * contains multiple columns with one data row.
+   *
+   * Otherwise use ExcelRangeVisual for ranges such
+   * as B2:B4.
+   */
+  const isComparisonChallenge =
+    columns.length > 1 &&
+    columns.every(
+      (column) =>
+        Array.isArray(column.cells) &&
+        column.cells.length === 1
+    );
 
   return (
     <div className="modal-overlay">
@@ -190,19 +111,33 @@ function ChallengeModal({
         aria-labelledby="challenge-title"
       >
         <p className="challenge-label">
-          Formula Challenge
+          {moduleTitle
+            ? `${moduleTitle} · Formula Challenge`
+            : "Formula Challenge"}
         </p>
 
         <h2 id="challenge-title">
-          {data.title}
+          {title ||
+            `Recover ${formula}`}
         </h2>
 
-        <p>{data.prompt}</p>
+        {prompt && <p>{prompt}</p>}
 
-        {data.visual}
+        {columns.length > 0 &&
+          (isComparisonChallenge ? (
+            <ExcelComparisonVisual
+              columns={columns}
+              footer={visualHint}
+            />
+          ) : (
+            <ExcelRangeVisual
+              columns={columns}
+              footer={visualHint}
+            />
+          ))}
 
         <div className="answers">
-          {data.answers.map((answer) => {
+          {answers.map((answer) => {
             const isSelected =
               selectedAnswer === answer;
 

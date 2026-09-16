@@ -14,7 +14,7 @@ import {
 } from "./data/curriculum";
 
 import {
-  foundationRetrievalChallenges,
+  getRetrievalChallengesByModule,
 } from "./data/retrieval";
 
 const WORLD_START = 300;
@@ -22,13 +22,16 @@ const CHALLENGE_SPACING = 430;
 const CHECKPOINT_DISTANCE = 55;
 const PLAYER_STEP = 18;
 
+const STORAGE_KEY = "excelQuestProgress";
+
 function App() {
   /* =========================================================
      NAVIGATION
   ========================================================= */
 
   const [screen, setScreen] = useState("map");
-  const [activeModuleId, setActiveModuleId] = useState(null);
+  const [activeModuleId, setActiveModuleId] =
+    useState(null);
 
   /* =========================================================
      LEVEL 1 — GAME STATE
@@ -39,10 +42,38 @@ function App() {
   const [currentChallengeId, setCurrentChallengeId] =
     useState(null);
 
-  const [completedChallengeIds, setCompletedChallengeIds] =
-    useState([]);
+  /*
+   * Load previously completed Level 1 challenges when the
+   * application starts.
+   */
+  const [
+    completedChallengeIds,
+    setCompletedChallengeIds,
+  ] = useState(() => {
+    try {
+      const savedProgress =
+        window.localStorage.getItem(STORAGE_KEY);
 
-  const [selectedAnswer, setSelectedAnswer] = useState("");
+      if (!savedProgress) {
+        return [];
+      }
+
+      const parsedProgress =
+        JSON.parse(savedProgress);
+
+      return Array.isArray(
+        parsedProgress.completedChallengeIds
+      )
+        ? parsedProgress.completedChallengeIds
+        : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [selectedAnswer, setSelectedAnswer] =
+    useState("");
+
   const [feedback, setFeedback] = useState("");
 
   const movementTimer = useRef(null);
@@ -60,6 +91,63 @@ function App() {
   const [retrievalComplete, setRetrievalComplete] =
     useState(false);
 
+  /*
+   * Completed Level 2 challenges are stored separately from
+   * Level 1 so both kinds of progress can be restored.
+   */
+  const [
+    completedRetrievalIds,
+    setCompletedRetrievalIds,
+  ] = useState(() => {
+    try {
+      const savedProgress =
+        window.localStorage.getItem(STORAGE_KEY);
+
+      if (!savedProgress) {
+        return [];
+      }
+
+      const parsedProgress =
+        JSON.parse(savedProgress);
+
+      return Array.isArray(
+        parsedProgress.completedRetrievalIds
+      )
+        ? parsedProgress.completedRetrievalIds
+        : [];
+    } catch {
+      return [];
+    }
+  });
+
+  /* =========================================================
+     LOCAL STORAGE
+  ========================================================= */
+
+  /*
+   * Whenever Level 1 or Level 2 completion changes, save the
+   * updated learner progress.
+   */
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          completedChallengeIds,
+          completedRetrievalIds,
+        })
+      );
+    } catch {
+      /*
+       * If localStorage is unavailable, the application still
+       * works normally for the current browser session.
+       */
+    }
+  }, [
+    completedChallengeIds,
+    completedRetrievalIds,
+  ]);
+
   /* =========================================================
      ACTIVE MODULE
   ========================================================= */
@@ -76,7 +164,9 @@ function App() {
 
   const completedInActiveModule = activeModule
     ? activeModule.challenges.filter((challenge) =>
-        completedChallengeIds.includes(challenge.id)
+        completedChallengeIds.includes(
+          challenge.id
+        )
       ).length
     : 0;
 
@@ -89,24 +179,24 @@ function App() {
      RETRIEVAL DATA
   ========================================================= */
 
-  // Foundations gets Level 2 retrieval practice.
-  // We use the module title because the curriculum module ID
-  // is not "foundations".
+  const retrievalChallenges = activeModule
+    ? getRetrievalChallengesByModule(
+        activeModule.id
+      )
+    : [];
+
   const hasRetrievalPractice =
-    activeModule?.title === "Formula Foundations";
+    retrievalChallenges.length > 0;
 
   const retrievalTotal =
-    hasRetrievalPractice
-      ? foundationRetrievalChallenges.length
-      : 0;
+    retrievalChallenges.length;
 
   const currentRetrievalChallenge =
     hasRetrievalPractice &&
     retrievalStarted &&
     !retrievalComplete
-      ? foundationRetrievalChallenges[
-          retrievalIndex
-        ] ?? null
+      ? retrievalChallenges[retrievalIndex] ??
+        null
       : null;
 
   /* =========================================================
@@ -146,14 +236,39 @@ function App() {
     }
 
     setActiveModuleId(moduleId);
+
     setCurrentChallengeId(null);
     setSelectedAnswer("");
     setFeedback("");
 
+    /*
+     * Check whether this module's Level 2 challenges were
+     * already completed in an earlier session.
+     */
+    const moduleRetrievalChallenges =
+      getRetrievalChallengesByModule(
+        moduleId
+      );
+
+    const moduleRetrievalComplete =
+      moduleRetrievalChallenges.length > 0 &&
+      moduleRetrievalChallenges.every(
+        (challenge) =>
+          completedRetrievalIds.includes(
+            challenge.id
+          )
+      );
+
     setRetrievalStarted(false);
     setRetrievalIndex(0);
-    setRetrievalComplete(false);
+    setRetrievalComplete(
+      moduleRetrievalComplete
+    );
 
+    /*
+     * Put the player near the first incomplete Level 1
+     * challenge.
+     */
     const firstIncompleteIndex =
       module.challenges.findIndex(
         (challenge) =>
@@ -205,7 +320,10 @@ function App() {
     }
 
     setPlayerX((previous) =>
-      Math.max(previous - PLAYER_STEP, 0)
+      Math.max(
+        previous - PLAYER_STEP,
+        0
+      )
     );
   };
 
@@ -475,24 +593,89 @@ function App() {
     setSelectedAnswer("");
     setFeedback("");
 
-    setRetrievalIndex(0);
+    /*
+     * If the learner completed part of Level 2 previously,
+     * resume at the first unfinished retrieval challenge.
+     */
+    const firstIncompleteRetrievalIndex =
+      retrievalChallenges.findIndex(
+        (challenge) =>
+          !completedRetrievalIds.includes(
+            challenge.id
+          )
+      );
+
+    /*
+     * Every retrieval challenge has already been completed.
+     */
+    if (
+      firstIncompleteRetrievalIndex === -1
+    ) {
+      setRetrievalIndex(0);
+      setRetrievalComplete(true);
+      setRetrievalStarted(false);
+      return;
+    }
+
+    setRetrievalIndex(
+      firstIncompleteRetrievalIndex
+    );
+
     setRetrievalComplete(false);
     setRetrievalStarted(true);
   };
 
   const completeRetrievalChallenge = () => {
-    const isLastChallenge =
-      retrievalIndex ===
-      foundationRetrievalChallenges.length -
-        1;
+    const completedRetrievalChallenge =
+      retrievalChallenges[
+        retrievalIndex
+      ];
 
-    if (isLastChallenge) {
+    if (!completedRetrievalChallenge) {
+      return;
+    }
+
+    /*
+     * Add this retrieval challenge to persistent completion
+     * history.
+     */
+    const updatedCompletedRetrievalIds =
+      completedRetrievalIds.includes(
+        completedRetrievalChallenge.id
+      )
+        ? completedRetrievalIds
+        : [
+            ...completedRetrievalIds,
+            completedRetrievalChallenge.id,
+          ];
+
+    setCompletedRetrievalIds(
+      updatedCompletedRetrievalIds
+    );
+
+    /*
+     * Find the next unfinished retrieval challenge.
+     */
+    const nextIncompleteIndex =
+      retrievalChallenges.findIndex(
+        (challenge, index) =>
+          index > retrievalIndex &&
+          !updatedCompletedRetrievalIds.includes(
+            challenge.id
+          )
+      );
+
+    /*
+     * No unfinished retrieval challenges remain.
+     */
+    if (nextIncompleteIndex === -1) {
       setRetrievalComplete(true);
+      setRetrievalStarted(false);
       return;
     }
 
     setRetrievalIndex(
-      (previous) => previous + 1
+      nextIncompleteIndex
     );
   };
 
@@ -510,6 +693,10 @@ function App() {
     setActiveModuleId(null);
     setPlayerX(80);
 
+    /*
+     * These are temporary screen states.
+     * Persistent completion remains in completedRetrievalIds.
+     */
     setRetrievalStarted(false);
     setRetrievalIndex(0);
     setRetrievalComplete(false);
@@ -526,6 +713,9 @@ function App() {
       return;
     }
 
+    /*
+     * Remove this module's Level 1 completion.
+     */
     const challengeIds =
       activeModule.challenges.map(
         (challenge) => challenge.id
@@ -536,6 +726,26 @@ function App() {
         previous.filter(
           (id) =>
             !challengeIds.includes(id)
+        )
+    );
+
+    /*
+     * Remove this module's Level 2 completion as well.
+     */
+    const retrievalChallengeIds =
+      getRetrievalChallengesByModule(
+        activeModule.id
+      ).map(
+        (challenge) => challenge.id
+      );
+
+    setCompletedRetrievalIds(
+      (previous) =>
+        previous.filter(
+          (id) =>
+            !retrievalChallengeIds.includes(
+              id
+            )
         )
     );
 
@@ -551,6 +761,55 @@ function App() {
   };
 
   /* =========================================================
+     RESET ALL PROGRESS
+  ========================================================= */
+
+  const resetProgress = () => {
+    stopMoving();
+
+    /*
+     * Clear all persistent Level 1 and Level 2 completion.
+     */
+    setCompletedChallengeIds([]);
+    setCompletedRetrievalIds([]);
+
+    /*
+     * Reset any temporary module/game state as well.
+     */
+    setCurrentChallengeId(null);
+    setSelectedAnswer("");
+    setFeedback("");
+
+    setActiveModuleId(null);
+    setPlayerX(80);
+
+    setRetrievalStarted(false);
+    setRetrievalIndex(0);
+    setRetrievalComplete(false);
+
+    /*
+     * Explicitly replace the saved progress with an empty
+     * progress object.
+     */
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          completedChallengeIds: [],
+          completedRetrievalIds: [],
+        })
+      );
+    } catch {
+      /*
+       * If localStorage is unavailable, React state still
+       * resets for the current browser session.
+       */
+    }
+
+    setScreen("map");
+  };
+
+  /* =========================================================
      QUEST MAP
   ========================================================= */
 
@@ -562,6 +821,7 @@ function App() {
           completedChallengeIds
         }
         onSelectModule={selectModule}
+        onResetProgress={resetProgress}
       />
     );
   }
@@ -597,7 +857,9 @@ function App() {
               Excel Quest
             </p>
 
-            <h1>{activeModule.title}</h1>
+            <h1>
+              {activeModule.title}
+            </h1>
 
             <p className="module-game-subtitle">
               Level 2 — Retrieval Practice
@@ -653,7 +915,9 @@ function App() {
             Excel Quest
           </p>
 
-          <h1>{activeModule.title}</h1>
+          <h1>
+            {activeModule.title}
+          </h1>
 
           <p className="module-game-subtitle">
             {activeModule.subtitle}
@@ -695,7 +959,8 @@ function App() {
           className="world"
           style={{
             width: `${worldWidth}px`,
-            transform: `translateX(-${cameraX}px)`,
+            transform:
+              `translateX(-${cameraX}px)`,
           }}
         >
           <div
@@ -943,13 +1208,14 @@ function App() {
       )}
 
       {/* =====================================================
-          FOUNDATIONS — LEVEL 2 UNLOCK
+          LEVEL 2 — RETRIEVAL PRACTICE UNLOCK
       ===================================================== */}
 
       {activeModuleComplete &&
         !currentChallenge &&
         hasRetrievalPractice &&
-        !retrievalStarted && (
+        !retrievalStarted &&
+        !retrievalComplete && (
           <div className="level-two-unlock">
             <p className="eyebrow">
               LEVEL 1 COMPLETE
@@ -960,9 +1226,9 @@ function App() {
             </h2>
 
             <p>
-              You recovered the Formula
-              Foundations skills. Now
-              construct formulas without
+              You recovered the{" "}
+              {activeModule.title} skills.
+              Now construct formulas without
               multiple-choice support.
             </p>
 

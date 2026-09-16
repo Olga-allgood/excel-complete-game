@@ -1259,255 +1259,1218 @@ button {
     transition: none;
   }
 }
+
 /* =========================================================
-   FORMULA INPUT / RETRIEVAL PRACTICE
+   QUEST MAP
 ========================================================= */
 
-.formula-input-challenge {
-  width: min(720px, calc(100% - 32px));
-  margin: 40px auto;
-  padding: 32px;
-  background: white;
-  border: 2px solid #d7e7df;
-  border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(24, 74, 53, 0.12);
+.module-map {
+  min-height: 100vh;
+  padding: 56px 32px 72px;
+  background: linear-gradient(180deg, #f4fbf6 0%, #eaf5ee 100%);
+  color: #19352a;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.formula-input-header {
-  margin-bottom: 24px;
+.module-map-header {
+  width: min(760px, 100%);
+  margin: 0 auto 34px;
+  text-align: center;
 }
 
-.formula-input-level {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: #168454;
+.module-map-header .eyebrow {
+  margin: 0 0 8px;
+  color: #16854f;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
-.formula-input-header h2 {
-  margin: 0;
-  color: #173f31;
+.module-map-header h1 {
+  margin: 0 0 14px;
+  color: #173f30;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1.05;
 }
 
-.formula-input-scenario {
-  padding: 18px;
-  margin-bottom: 24px;
-  background: #f3faf6;
-  border-left: 4px solid #168454;
-  border-radius: 10px;
-}
-
-.formula-input-scenario strong {
-  color: #173f31;
-}
-
-.formula-input-scenario p {
-  margin: 6px 0 0;
+.module-map-header > p:last-child {
+  max-width: 620px;
+  margin: 0 auto;
+  color: #60736b;
+  font-size: 17px;
   line-height: 1.6;
 }
 
-.formula-input-task > p {
-  font-size: 1.05rem;
-  line-height: 1.6;
+.overall-progress {
+  width: min(900px, 100%);
+  margin: 0 auto 36px;
+  padding: 18px 20px;
+  border: 1px solid #d5e4da;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 5px 18px rgba(24, 76, 50, 0.06);
 }
 
-.formula-input-label {
-  display: block;
-  margin: 22px 0 8px;
-  font-weight: 700;
-  color: #173f31;
-}
-
-.formula-entry {
+.overall-progress-heading {
   display: flex;
   align-items: center;
-  border: 2px solid #b8cec3;
-  border-radius: 10px;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 10px;
+  color: #61766b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.overall-progress-heading strong { color: #176a43; }
+
+.module-progress-track {
+  width: 100%;
+  height: 8px;
   overflow: hidden;
-  background: white;
+  border-radius: 999px;
+  background: #dfe8e1;
 }
 
-.formula-entry:focus-within {
-  border-color: #168454;
+.module-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #3f8f55;
+  transition: width 0.3s ease;
 }
 
-.formula-fx {
-  padding: 14px 16px;
-  background: #edf7f1;
-  color: #168454;
-  font-weight: 800;
-  font-style: italic;
+.module-grid {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
 }
 
-.formula-entry input {
-  flex: 1;
+/* =========================================================
+   MODULE CARD
+========================================================= */
+
+.module-card {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
   min-width: 0;
-  padding: 14px 16px;
-  border: none;
-  outline: none;
-  font-family: "Courier New", monospace;
+  min-height: 310px;
+  margin: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #d8e5dc;
+  border-radius: 18px;
+  background: #fff;
+  color: #19352a;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(25, 65, 45, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.module-card:disabled { color: inherit; }
+
+.module-card:not(:disabled):hover {
+  transform: translateY(-4px);
+  border-color: #7eaf8d;
+  box-shadow: 0 14px 30px rgba(20, 70, 43, 0.12);
+}
+
+.module-card:focus-visible {
+  outline: 3px solid rgba(36, 135, 85, 0.25);
+  outline-offset: 3px;
+}
+
+.module-card-available { border-color: #78aa87; }
+
+.module-card-locked {
+  opacity: 0.58;
+  border-color: #d8e0db;
+  background: #f8faf9;
+  cursor: not-allowed;
+}
+
+.module-card-complete {
+  border-color: #31a866;
+  background: #f7fcf9;
+}
+
+.module-card-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.module-number {
+  color: #16854f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.module-status {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.module-status-available { background: #e2f4e8; color: #176a43; }
+.module-status-locked { background: #e9eeeb; color: #6e7c75; }
+.module-status-complete { background: #daf5e5; color: #176a43; }
+
+.module-card h3 {
+  margin: 24px 0 9px;
+  color: #19352a;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.module-card > p {
+  margin: 0 0 20px;
+  color: #667a70;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.module-formulas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 24px;
+}
+
+.module-formulas span,
+.module-progress-skills span {
+  padding: 6px 9px;
+  border: 1px solid #dbe7df;
+  border-radius: 8px;
+  background: #f2f7f4;
+  color: #315142;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.module-card-locked .module-formulas span {
+  background: #f1f3f2;
+  border-color: #e1e5e3;
+  color: #6f7974;
+}
+
+.module-card-progress {
+  width: 100%;
+  margin-top: auto;
+}
+
+.module-card-progress small {
+  display: block;
+  margin-top: 7px;
+  color: #788b82;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.module-action {
+  display: inline-block;
+  margin-top: 14px;
+  color: #176a43;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   MODULE PROGRESS
+========================================================= */
+
+.module-progress {
+  margin: 16px auto;
+  padding: 16px 20px;
+  max-width: 1000px;
+  background: white;
+  border: 1px solid #dce7df;
+  border-radius: 16px;
+}
+
+.module-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.module-progress-heading > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.module-progress-heading span {
+  font-size: 0.8rem;
+}
+
+.module-progress-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.module-skill-complete {
+  opacity: 1;
+}
+
+.module-skill-pending {
+  opacity: 0.55;
+}
+
+/* =========================================================
+   MODULE GAME
+========================================================= */
+
+.module-game-subtitle {
+  margin: 4px 0 0;
+}
+
+.map-button {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #cad9ce;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.quest-start-sign {
+  position: absolute;
+  bottom: 135px;
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  padding: 12px;
+  background: white;
+  border: 2px solid #425b48;
+  border-radius: 10px;
+}
+
+.quest-start-sign small {
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.quest-start-sign strong {
+  margin: 4px 0;
+}
+
+.quest-start-sign span {
+  font-size: 0.72rem;
+}
+
+/* =========================================================
+   GENERATED ZONES
+========================================================= */
+
+.generated-zone {
+  position: absolute;
+  bottom: 270px;
+  width: 210px;
+  text-align: center;
+}
+
+.generated-zone span {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.generated-zone strong {
+  display: block;
+  margin: 4px 0;
   font-size: 1rem;
 }
 
-.formula-entry input:disabled {
-  background: #f7faf8;
-  color: #173f31;
+.generated-zone small {
+  display: block;
 }
 
-.formula-feedback {
-  margin-top: 16px;
+.generated-zone-complete {
+  opacity: 0.65;
+}
+
+.completed-formula-token,
+.locked-formula-token {
+  position: absolute;
+  bottom: 145px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.completed-formula-token {
+  border: 2px solid #4c9a61;
+}
+
+.locked-formula-token {
+  border: 2px dashed #9ba7a0;
+  opacity: 0.65;
+}
+
+.completed-formula-token strong,
+.locked-formula-token strong {
+  font-family: monospace;
+  margin: 3px 0;
+}
+
+.completed-formula-token small,
+.locked-formula-token small {
+  font-size: 0.65rem;
+}
+
+/* =========================================================
+   MODULE COMPLETE
+========================================================= */
+
+.module-complete {
+  width: min(560px, calc(100% - 32px));
+  padding: 34px;
+  background: white;
+  border-radius: 22px;
+  text-align: center;
+}
+
+.module-complete-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #e3f4e8;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.module-complete-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.module-complete h2 {
+  margin: 8px 0;
+}
+
+.module-complete-skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px 0;
+}
+
+.module-complete-skills span {
+  padding: 7px 10px;
+  background: #eef5f0;
+  border-radius: 8px;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.module-complete-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.secondary-button {
+  padding: 11px 18px;
+  background: white;
+  border: 1px solid #b9c8bd;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* =========================================================
+   LEVEL 2 — RETRIEVAL PRACTICE
+========================================================= */
+
+.formula-input-challenge {
+  width: min(900px, 100%);
+  margin: 18px auto 40px;
+  padding: 30px;
+  border: 1px solid #d7e5dc;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(24, 76, 50, 0.08);
+}
+
+.retrieval-header { margin-bottom: 22px; }
+
+.retrieval-eyebrow,
+.retrieval-section-label,
+.retrieval-scenario > span,
+.retrieval-formula-structure > span {
+  display: block;
+  color: #16854f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+
+.retrieval-header h2 {
+  margin: 6px 0 7px;
+  color: #19352a;
+  font-size: clamp(1.7rem, 4vw, 2.25rem);
+  line-height: 1.15;
+}
+
+.retrieval-subtitle {
+  margin: 0;
+  color: #667a70;
+  line-height: 1.55;
+}
+
+.retrieval-scenario,
+.retrieval-task {
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid #dce8e1;
+  border-radius: 12px;
+  background: #f7fbf8;
+}
+
+.retrieval-scenario p,
+.retrieval-task p {
+  margin: 7px 0 0;
+  color: #40594d;
+  line-height: 1.6;
+}
+
+/* Spreadsheet */
+.retrieval-table-wrapper {
+  width: 100%;
+  margin: 22px 0;
+  overflow-x: auto;
+  border: 1px solid #aebdb5;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.retrieval-table {
+  min-width: 360px;
+  display: grid;
+}
+
+.retrieval-corner,
+.retrieval-column-letter,
+.retrieval-row-number,
+.retrieval-heading-cell,
+.retrieval-data-cell {
+  min-height: 42px;
+  display: grid;
+  align-items: center;
+  padding: 8px 10px;
+  border-right: 1px solid #cbd7d1;
+  border-bottom: 1px solid #cbd7d1;
+}
+
+.retrieval-corner,
+.retrieval-column-letter,
+.retrieval-row-number {
+  justify-items: center;
+  background: #e5ebe7;
+  color: #52655c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.retrieval-column-letter { font-size: 13px; }
+
+.retrieval-heading-cell {
+  background: #f2f6f4;
+  color: #19352a;
+  font-weight: 800;
+}
+
+.retrieval-data-cell {
+  background: #fff;
+  color: #253b31;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 15px;
+}
+
+/* Formula structure */
+.retrieval-formula-structure {
+  margin: 18px 0;
   padding: 14px 16px;
+  border-left: 4px solid #7bb18c;
+  border-radius: 8px;
+  background: #f2f8f4;
+}
+
+.retrieval-formula-structure code {
+  display: inline-block;
+  margin-top: 8px;
+  color: #234c38;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* Formula entry */
+.retrieval-answer-area { margin-top: 22px; }
+
+.retrieval-answer-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #29483a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.retrieval-formula-bar {
+  display: flex;
+  align-items: stretch;
+  min-height: 52px;
+  overflow: hidden;
+  border: 2px solid #b9c9c0;
+  border-radius: 9px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.retrieval-formula-bar:focus-within {
+  border-color: #248755;
+  box-shadow: 0 0 0 3px rgba(36, 135, 85, 0.12);
+}
+
+.retrieval-formula-bar-correct {
+  border-color: #31a866;
+  background: #f7fcf9;
+}
+
+.retrieval-fx {
+  min-width: 52px;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid #d4ded8;
+  background: #f0f4f2;
+  color: #51665b;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.retrieval-formula-bar input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0 14px;
+  background: transparent;
+  color: #19352a;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 16px;
+}
+
+.retrieval-formula-bar input::placeholder { color: #93a29a; }
+.retrieval-formula-bar input:disabled { opacity: 1; color: #176a43; -webkit-text-fill-color: #176a43; }
+
+.retrieval-input-help {
+  display: block;
+  margin-top: 7px;
+  color: #788b82;
+  font-size: 12px;
+}
+
+/* Feedback */
+.retrieval-feedback {
+  margin-top: 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   border-radius: 10px;
   line-height: 1.5;
 }
 
-.formula-feedback-correct {
-  background: #eaf8ef;
-  border: 1px solid #a8d8b8;
-  color: #17683d;
+.retrieval-feedback-guidance {
+  border: 1px solid #e2d5aa;
+  background: #fff9e8;
+  color: #665522;
 }
 
-.formula-feedback-try-again {
-  background: #fff8e7;
-  border: 1px solid #e7d39a;
-  color: #6e5718;
+.retrieval-feedback-correct {
+  border: 1px solid #9bd0ae;
+  background: #e8f7ee;
+  color: #176a43;
 }
 
-.formula-input-actions {
+.retrieval-feedback-icon {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  font-weight: 900;
+}
+
+.retrieval-feedback strong { display: block; margin-bottom: 3px; }
+.retrieval-feedback p { margin: 0; }
+
+/* Guided support */
+.retrieval-guidance {
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid #d8e5dd;
+  border-radius: 12px;
+  background: #fbfdfc;
+}
+
+.retrieval-guidance-header {
+  padding: 11px 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #e0e9e3;
+  background: #f1f7f3;
+  color: #3d5b4c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.retrieval-guidance-header small { color: #788b82; font-weight: 700; }
+
+.retrieval-guidance-step {
+  padding: 15px 16px;
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid #e5ece7;
+}
+
+.retrieval-guidance-step-final { background: #f6fbf8; }
+
+.retrieval-step-number {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #dff1e5;
+  color: #176a43;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.retrieval-guidance-step strong { color: #29483a; }
+.retrieval-guidance-step p { margin: 5px 0 0; color: #60736b; line-height: 1.5; }
+
+.retrieval-guidance-step code,
+.retrieval-range-example,
+.retrieval-formula-pattern {
+  color: #214c37;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-weight: 800;
+}
+
+.retrieval-range-example,
+.retrieval-formula-pattern {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 9px;
+  border: 1px solid #d4e2d9;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.retrieval-hint {
+  padding: 13px 16px;
+  background: #fff9e8;
+  color: #675721;
+  line-height: 1.5;
+}
+
+.retrieval-actions {
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
 }
 
-.formula-hint {
-  margin-top: 18px;
-  padding: 14px 16px;
-  background: #f5f7f6;
-  border-radius: 10px;
-  color: #52675d;
+.retrieval-actions .continue-button { margin-top: 0; }
+
+/* Level 2 unlock */
+.level-two-unlock {
+  width: min(620px, calc(100% - 32px));
+  margin: 22px auto 0;
+  padding: 28px;
+  border: 2px solid #8bb99a;
+  border-radius: 18px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(24, 76, 50, 0.08);
+}
+
+.level-two-unlock h2 { margin: 7px 0 10px; color: #19352a; }
+.level-two-unlock > p:not(.eyebrow) { margin: 0 auto; max-width: 500px; color: #60736b; line-height: 1.6; }
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .module-map { padding: 44px 24px 60px; }
+  .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .module-map { padding: 32px 18px 48px; }
+  .module-grid { grid-template-columns: 1fr; }
+  .game-header { align-items: flex-start; gap: 14px; }
+  .module-progress-heading { align-items: flex-start; }
+
+  .formula-input-challenge {
+    margin-top: 14px;
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .retrieval-table {
+    min-width: 520px;
+  }
+
+  .retrieval-actions .continue-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .module-map-header { margin-bottom: 26px; }
+  .module-map-header h1 { font-size: 2.4rem; }
+  .module-map-header > p:last-child { font-size: 15px; }
+  .overall-progress { margin-bottom: 26px; padding: 15px 16px; }
+  .module-grid { gap: 14px; }
+  .module-card { min-height: 280px; padding: 20px; }
+  .module-card h3 { margin-top: 20px; font-size: 19px; }
+  .module-formulas span { font-size: 11px; }
+
+  .retrieval-scenario,
+  .retrieval-task { padding: 14px; }
+
+  .retrieval-guidance-step { padding: 14px; }
 }
 
 /* =========================================================
-   RETRIEVAL PRACTICE — SPREADSHEET
+   MOBILE RESPONSIVE SAFETY
+   Prevent page-level horizontal overflow
 ========================================================= */
 
-.formula-input-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: flex-start;
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
 }
 
-.formula-input-subtitle {
-  margin: 6px 0 0;
-  color: #63786e;
+body {
+  overflow-x: hidden;
 }
 
-.retrieval-type {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #edf7f1;
-  color: #168454;
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.retrieval-sheet-wrapper {
-  margin: 24px 0;
-  overflow-x: auto;
-  border: 1px solid #bfcfc7;
-  border-radius: 10px;
-  background: white;
-}
-
-.retrieval-sheet {
-  display: grid;
-  min-width: 420px;
-}
-
-.retrieval-column {
+/* Allow flex/grid children to actually shrink */
+.module-map *,
+.app * {
   min-width: 0;
-  border-right: 1px solid #cbd8d1;
 }
 
-.retrieval-column:last-child {
-  border-right: none;
+/* =========================================================
+   QUEST MAP — MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+  .module-map {
+    width: 100%;
+    max-width: 100%;
+    padding: 32px 16px 48px;
+    overflow-x: hidden;
+  }
+
+  .module-map-header,
+  .overall-progress,
+  .module-grid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .module-map-header h1 {
+    max-width: 100%;
+    font-size: clamp(2rem, 10vw, 2.6rem);
+    overflow-wrap: break-word;
+  }
+
+  .module-map-header > p:last-child {
+    width: 100%;
+    max-width: 100%;
+    font-size: 15px;
+  }
+
+  .overall-progress {
+    padding: 15px 16px;
+  }
+
+  .overall-progress-heading {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .module-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .module-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .module-card-top {
+    min-width: 0;
+  }
+
+  .module-card h3,
+  .module-card > p {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .module-formulas {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .module-formulas span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
 }
 
-.retrieval-column-letter {
-  padding: 8px;
-  text-align: center;
-  font-weight: 800;
-  color: #173f31;
-  background: #e3ebe7;
-  border-bottom: 1px solid #cbd8d1;
+/* =========================================================
+   MAIN MODULE SCREEN — MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .app {
+    width: 100%;
+    max-width: 100%;
+    padding: 18px 10px 24px;
+    overflow-x: hidden;
+  }
+
+  .game-header,
+  .mission-card,
+  .quest-progress,
+  .module-progress,
+  .game-world,
+  .mobile-controls {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .game-header > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .game-header h1,
+  .module-game-subtitle {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .map-button {
+    max-width: 100%;
+  }
+
+  .mission-copy {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .module-progress-heading {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .module-progress-skills {
+    width: 100%;
+  }
 }
 
-.retrieval-column-heading {
-  padding: 10px 12px;
-  min-height: 44px;
-  font-weight: 800;
-  color: #173f31;
-  border-bottom: 1px solid #d6e0db;
+/* =========================================================
+   LEVEL 1 MODALS — MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .challenge-modal,
+  .final-report-modal {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 16px;
+  }
+
+  .challenge-modal h2,
+  .final-report-modal h2 {
+    overflow-wrap: break-word;
+  }
+
+  .answer-button {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /*
+   * Excel-style data may remain wider than the phone.
+   * Only the spreadsheet itself scrolls.
+   */
+  .challenge-excel,
+  .excel-report {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
-.retrieval-cell {
-  position: relative;
+/* =========================================================
+   LEVEL 2 — MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+  .formula-input-challenge {
+    width: 100%;
+    max-width: 100%;
+    margin: 14px auto 30px;
+    padding: 20px 16px;
+  }
+
+  .retrieval-header,
+  .retrieval-scenario,
+  .retrieval-task,
+  .retrieval-formula-structure,
+  .retrieval-answer-area,
+  .retrieval-guidance {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .retrieval-header h2,
+  .retrieval-subtitle,
+  .retrieval-scenario p,
+  .retrieval-task p {
+    overflow-wrap: break-word;
+  }
+
+  /*
+   * Do NOT squeeze an Excel table until it becomes unreadable.
+   * The table scrolls inside its own container instead.
+   */
+  .retrieval-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .retrieval-table {
+    min-width: 520px;
+  }
+
+  .retrieval-formula-structure code,
+  .retrieval-range-example,
+  .retrieval-formula-pattern {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .retrieval-formula-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .retrieval-formula-bar input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .retrieval-feedback {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .retrieval-guidance-header {
+    flex-wrap: wrap;
+  }
+
+  .retrieval-guidance-step {
+    min-width: 0;
+  }
+
+  .retrieval-guidance-step > div:last-child {
+    min-width: 0;
+  }
+}
+
+/* =========================================================
+   COMPLETION SCREENS — MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .level-two-unlock,
+  .module-complete,
+  .quest-complete-final {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .level-two-unlock {
+    padding: 22px 18px;
+  }
+
+  .module-complete {
+    padding: 26px 18px;
+  }
+
+  .module-complete-actions {
+    width: 100%;
+  }
+
+  .module-complete-actions button {
+    width: 100%;
+  }
+
+  .quest-complete-final {
+    flex-direction: column;
+  }
+}
+
+/* =========================================================
+   RESET PROGRESS
+========================================================= */
+
+.module-map .reset-progress-area {
+  width: min(1100px, 100%);
+  margin: 30px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.module-map .reset-progress-button {
+  appearance: none;
+  -webkit-appearance: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   min-height: 42px;
-  padding: 10px 12px 10px 38px;
-  border-bottom: 1px solid #e0e7e3;
-  color: #243d32;
-}
+  margin: 0;
+  padding: 9px 16px;
 
-.retrieval-cell:last-child {
-  border-bottom: none;
-}
+  border: 1px solid #b9c8bd;
+  border-radius: 9px;
 
-.retrieval-row-number {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 28px;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  background: #f1f5f3;
-  border-right: 1px solid #d6e0db;
-  font-size: 0.75rem;
-  color: #718178;
-}
+  background: rgba(255, 255, 255, 0.7);
+  color: #60736b;
 
-.retrieval-prompt {
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.6;
-  color: #243d32;
-}
-
-.formula-scaffold {
-  margin: 20px 0;
-  padding: 16px;
-  border: 1px dashed #9bbcaf;
-  border-radius: 10px;
-  background: #f6fbf8;
-}
-
-.formula-scaffold span {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #63786e;
-}
-
-.formula-scaffold code {
-  font-size: 1.15rem;
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 700;
-  color: #168454;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.module-map .reset-progress-button:hover {
+  border-color: #7eaa8c;
+  background: #ffffff;
+  color: #176a43;
+}
+
+.module-map .reset-progress-button:focus-visible {
+  outline: 3px solid rgba(36, 135, 85, 0.18);
+  outline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+  .module-map .reset-progress-area {
+    margin-top: 24px;
+  }
+
+  .module-map .reset-progress-button {
+    min-height: 44px;
+  }
+}
+
+/* =========================================================
+   QUEST MAP FOOTER
+========================================================= */
+
+.module-map-footer {
+  width: min(1100px, 100%);
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  color: #788b82;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.footer-divider {
+  color: #a6b5ad;
+}
+
+@media (max-width: 600px) {
+  .module-map-footer {
+    flex-wrap: wrap;
+    row-gap: 3px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
 }

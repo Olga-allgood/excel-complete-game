@@ -4,6 +4,7 @@ function ModuleMap({
   modules,
   completedChallengeIds = [],
   onSelectModule,
+  onResetProgress,
 }) {
   const getCompletedCount = (module) =>
     module.challenges.filter((challenge) =>
@@ -11,7 +12,8 @@ function ModuleMap({
     ).length;
 
   const isModuleComplete = (module) =>
-    getCompletedCount(module) === module.challenges.length;
+    getCompletedCount(module) ===
+    module.challenges.length;
 
   const getModuleStatus = (module, index) => {
     if (isModuleComplete(module)) {
@@ -32,19 +34,33 @@ function ModuleMap({
   };
 
   const totalSkills = modules.reduce(
-    (total, module) => total + module.challenges.length,
+    (total, module) =>
+      total + module.challenges.length,
     0
   );
 
   const completedSkills = modules.reduce(
-    (total, module) => total + getCompletedCount(module),
+    (total, module) =>
+      total + getCompletedCount(module),
     0
   );
 
   const overallProgress =
     totalSkills === 0
       ? 0
-      : Math.round((completedSkills / totalSkills) * 100);
+      : Math.round(
+          (completedSkills / totalSkills) * 100
+        );
+
+  const handleReset = () => {
+    const confirmed = window.confirm(
+      "Reset all progress? This will return all modules to their starting state."
+    );
+
+    if (confirmed) {
+      onResetProgress();
+    }
+  };
 
   return (
     <main className="module-map">
@@ -88,12 +104,42 @@ function ModuleMap({
           <ModuleCard
             key={module.id}
             module={module}
-            status={getModuleStatus(module, index)}
-            completedCount={getCompletedCount(module)}
+            status={getModuleStatus(
+              module,
+              index
+            )}
+            completedCount={
+              getCompletedCount(module)
+            }
             onSelect={onSelectModule}
           />
         ))}
       </section>
+
+      {completedSkills > 0 && (
+        <div className="reset-progress-area">
+          <button
+            type="button"
+            className="reset-progress-button"
+            onClick={handleReset}
+          >
+            Reset Progress
+          </button>
+        </div>
+      )}
+
+      <footer className="module-map-footer">
+        <span>© Olga Orlova</span>
+        <span
+          className="footer-divider"
+          aria-hidden="true"
+        >
+          ·
+        </span>
+        <span>
+          Technical Instructional Designer
+        </span>
+      </footer>
     </main>
   );
 }
